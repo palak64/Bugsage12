@@ -82,10 +82,14 @@ Type:`;
 }
 
 export async function generateSummary(input: any) {
-  const prompt = `Generate summary for bug: ${JSON.stringify(input)}`;
+  const prompt = `Generate a concise summary (2-3 sentences) for this bug report:
+
+${JSON.stringify(input, null, 2)}
+
+Summary:`;
   const result = await callGemini(prompt);
-  if (result.mock) return result.result;
-  return result.summary || 'No summary';
+  if (typeof result === 'object' && result.mock) return result.result || 'No summary available';
+  return typeof result === 'string' ? result.trim() : 'No summary';
 }
 
 export async function findDuplicates(input: any) {
@@ -93,9 +97,25 @@ export async function findDuplicates(input: any) {
   if (!GEMINI_API_KEY) {
     return { duplicates: [] };
   }
-  const prompt = `Find duplicates for: ${JSON.stringify(input)}`;
+  const prompt = `Analyze this bug report and identify if there are any duplicate bugs. Respond with a JSON array of duplicate bug IDs if found, or an empty array [] if no duplicates.
+
+Bug Report: ${JSON.stringify(input)}
+
+Response format: ["bug-id-1", "bug-id-2"] or []`;
   const result = await callGemini(prompt);
-  return result.duplicates || [];
+  if (typeof result === 'object' && result.mock) return { duplicates: [] };
+  try {
+    // Try to parse JSON from the response
+    const text = typeof result === 'string' ? result.trim() : '';
+    const jsonMatch = text.match(/\[.*?\]/);
+    if (jsonMatch) {
+      const duplicates = JSON.parse(jsonMatch[0]);
+      return { duplicates: Array.isArray(duplicates) ? duplicates : [] };
+    }
+  } catch (e) {
+    // If parsing fails, return empty array
+  }
+  return { duplicates: [] };
 }
 
 export async function recommendPriority(input: any) {
@@ -113,15 +133,37 @@ Priority:`;
 }
 
 export async function analyzeSentiment(input: any) {
-  const prompt = `Analyze sentiment for: ${JSON.stringify(input)}`;
+  const prompt = `Analyze the sentiment of this bug report. Only respond with one word: "positive", "neutral", or "negative".
+
+Bug Report: ${JSON.stringify(input)}
+
+Sentiment:`;
   const result = await callGemini(prompt);
-  return result.sentiment || 'neutral';
+  if (typeof result === 'object' && result.mock) return 'neutral';
+  const text = typeof result === 'string' ? result.toLowerCase() : '';
+  if (text.includes('positive')) return 'positive';
+  if (text.includes('negative')) return 'negative';
+  return 'neutral';
 }
 
 export async function parseQuery(input: any) {
-  const prompt = `Parse query: ${JSON.stringify(input)}`;
+  const prompt = `Parse this search query and extract key terms. Respond with a JSON object containing: { "keywords": [], "filters": {} }.
+
+Query: ${JSON.stringify(input)}
+
+Response:`;
   const result = await callGemini(prompt);
-  return result.query || {};
+  if (typeof result === 'object' && result.mock) return {};
+  try {
+    const text = typeof result === 'string' ? result.trim() : '';
+    const jsonMatch = text.match(/\{.*\}/s);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
+    }
+  } catch (e) {
+    // If parsing fails, return empty object
+  }
+  return {};
 }
 
 export default {

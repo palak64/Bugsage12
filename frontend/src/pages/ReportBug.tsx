@@ -17,14 +17,24 @@ const ReportBug: React.FC = () => {
     try {
       const bug = { id: Date.now().toString(), title, description, status };
       await reportBug(bug);
+      
+      // Try to get AI prediction, but don't fail the whole operation if it fails
+      let aiErrorOccurred = false;
       try {
         const ai = await predictAI({ title, description });
         setAiResult(ai);
       } catch (aiError: any) {
         console.error('AI prediction failed:', aiError);
-        setMessage('Bug reported, but AI prediction failed: ' + (aiError.message || 'Unknown error'));
+        aiErrorOccurred = true;
+        // Set AI error message but continue to show success for bug report
+        setMessage('Bug reported successfully! (AI prediction unavailable: ' + (aiError.message || 'Unknown error') + ')');
       }
-      setMessage('Bug reported successfully!');
+      
+      // Only set success message if AI didn't fail, or if it did fail, message is already set above
+      if (!aiErrorOccurred) {
+        setMessage('Bug reported successfully!');
+      }
+      
       setShowAnim(true);
       setTimeout(() => setShowAnim(false), 2000);
       setTitle('');
