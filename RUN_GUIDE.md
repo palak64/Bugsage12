@@ -4,6 +4,29 @@ Complete guide to get BugSage up and running on your machine.
 
 ---
 
+## ⚡ Quick Start (Recommended)
+
+### Windows
+Simply double-click `start.bat` or run in PowerShell:
+```powershell
+.\setup-windows.ps1
+```
+
+### macOS / Linux
+```bash
+chmod +x setup-mac.sh
+./setup-mac.sh
+```
+
+These scripts will:
+- ✅ Check all prerequisites (Node.js, npm)
+- ✅ Create `.env` file if missing (prompts for Gemini API key)
+- ✅ Install all dependencies
+- ✅ Start both servers
+- ✅ Open browser automatically
+
+---
+
 ## 📋 Prerequisites
 
 Before you start, make sure you have:
@@ -262,6 +285,16 @@ The `.env` file should contain:
 ```env
 GEMINI_API_KEY=your_actual_gemini_api_key_here
 ```
+
+### .env File Location
+
+| Method | Location |
+|--------|----------|
+| **Local Development** | `backend/.env` (required) |
+| **Docker Compose** | Project root `.env` (required) |
+| **Setup Scripts** | Creates in both locations automatically |
+
+**Tip:** The setup scripts (`start.bat`, `setup-windows.ps1`, `setup-mac.sh`) automatically create `.env` in both locations for convenience.
 
 **Security Note:** Never commit `.env` file to git. It's already in `.gitignore`.
 

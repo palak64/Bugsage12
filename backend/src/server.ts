@@ -9,6 +9,7 @@ import aiRoutes from './routes/aiRoutes';
 import analyticsRoutes from './routes/analytics';
 
 dotenv.config();
+console.log("Gemini API Key Loaded:", process.env.GEMINI_API_KEY ? "YES" : "NO");
 const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
 const BUGS_FILE = path.join(__dirname, '../data/bugs.json');
 const logger = pino();
@@ -97,6 +98,7 @@ app.use('/api/ai', aiRoutes);
 // Analytics endpoints
 app.use('/api/analytics', analyticsRoutes);
 
-app.listen(PORT, () => {
-  logger.info(`Server running on http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  logger.info(`Server running on http://0.0.0.0:${PORT}`);
 });
+

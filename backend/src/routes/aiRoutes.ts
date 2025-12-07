@@ -66,4 +66,8 @@ router.post('/analysis', async (req, res) => {
   }
 });
 
+router.get('/test', (req, res) => {
+  res.send(" AI Route Working — ECS Deployment Success!");
+});
+
 export default router;
